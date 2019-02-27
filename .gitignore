@@ -32,6 +32,7 @@ gen### Java template
 hs_err_pid*
 ### Gradle template
 .gradle
+gradle
 /build/
 
 # Ignore Gradle GUI config
@@ -99,3 +100,13 @@ fabric.properties
 # Editor-based Rest Client
 .idea/httpRequests
 
+.gitignore
+README.md
+build.gradle
+core/
+example/
+gradle/
+gradlew
+gradlew.bat
+settings.gradle
+src/
