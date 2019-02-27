@@ -111,3 +111,4 @@ gradlew.bat
 settings.gradle
 src/
 /gradle/
+!/gradle/
