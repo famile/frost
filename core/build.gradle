@@ -1,0 +1,24 @@
+plugins {
+    id 'java'
+}
+
+group 'com.cjsff'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile group: 'io.netty', name: 'netty-all', version: '4.1.6.Final'
+    compile group: 'org.projectlombok', name: 'lombok', version: '1.18.4'
+    compile group: 'org.apache.curator', name: 'curator-framework', version: '4.0.0'
+    compile group: 'com.alibaba', name: 'fastjson', version: '1.2.54'
+    compile group: 'cglib', name: 'cglib', version: '3.2.10'
+    compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.25'
+    compile group: 'org.apache.commons', name: 'commons-collections4', version: '4.1'
+    compile group: 'org.apache.commons', name: 'commons-pool2', version: '2.6.0'
+}
