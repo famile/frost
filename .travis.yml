@@ -4,4 +4,4 @@ jdk:
 
 install: gradle clean build
 
-script: gradle clean build
+script: :example gradle clean build test

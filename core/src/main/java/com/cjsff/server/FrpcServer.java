@@ -24,14 +24,20 @@ public class FrpcServer {
 
     private FrpcServerOption frpcServerOption = new FrpcServerOption();
 
+    public FrpcServer(int port) throws InterruptedException {
+        this(port, null, null);
+    }
+
     public FrpcServer(int port,String zkAddress) throws InterruptedException {
         this(port, zkAddress,null);
     }
 
     public FrpcServer(int port, String zkAddress,FrpcServerOption option) throws InterruptedException {
 
-        ServerRegisterDiscovery serverRegisterDiscovery = new ZookeeperService(zkAddress);
-        serverRegisterDiscovery.register(port);
+        if (zkAddress != null) {
+            ServerRegisterDiscovery serverRegisterDiscovery = new ZookeeperService(zkAddress);
+            serverRegisterDiscovery.register(port);
+        }
 
         if (option != null) {
             BeanCopier copier = BeanCopier.create(FrpcServerOption.class, FrpcServerOption.class, false);

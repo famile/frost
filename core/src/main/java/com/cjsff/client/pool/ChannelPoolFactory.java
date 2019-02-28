@@ -6,24 +6,39 @@ import org.apache.commons.pool2.BasePooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
 
+import java.net.InetSocketAddress;
+
 /**
  * @author cjsff
  */
 public class ChannelPoolFactory extends BasePooledObjectFactory<Channel> {
 
     private FrpcClient frpcClient;
-    private String address;
-    private int port;
+    private String zkAddress;
+    private Integer port;
+    private InetSocketAddress serverAddress;
 
-    public ChannelPoolFactory(FrpcClient frpcClient, String address,int port) {
+    public ChannelPoolFactory(FrpcClient frpcClient, InetSocketAddress serverAddress) {
+        this(frpcClient, serverAddress, null, null);
+    }
+
+    public ChannelPoolFactory(FrpcClient frpcClient, String zkAddress, Integer port) {
+        this(frpcClient, null, zkAddress, port);
+    }
+
+    public ChannelPoolFactory(FrpcClient frpcClient,InetSocketAddress serverAddress, String zkAddress,Integer port) {
         this.frpcClient = frpcClient;
-        this.address = address;
+        this.serverAddress = serverAddress;
+        this.zkAddress = zkAddress;
         this.port = port;
     }
 
     @Override
     public Channel create() throws Exception {
-        return frpcClient.getConnect(address,port);
+        if (serverAddress != null) {
+            return frpcClient.getConnect(serverAddress);
+        }
+        return frpcClient.getConnect(zkAddress,port);
     }
 
     @Override

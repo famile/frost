@@ -12,6 +12,8 @@ import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
+
 /**
  * @author cjsff
  */
@@ -21,10 +23,18 @@ public class FrpcPooledChannel implements FrpcConnectionPool {
 
     private GenericObjectPool<Channel> channelGenericObjectPool;
 
-    public FrpcPooledChannel(String address, FrpcClient client) {
+    public FrpcPooledChannel(InetSocketAddress serverAddress, FrpcClient client) {
+        this(serverAddress, null, client);
+    }
+
+    public FrpcPooledChannel(String zkAddress, FrpcClient client) {
+        this(null, zkAddress, client);
+    }
+
+    public FrpcPooledChannel(InetSocketAddress serverAddress,String zkAddress, FrpcClient client) {
 
         FrpcClientOption frpcClientOption = client.getFrpcClientOption();
-        GenericObjectPoolConfig config = new GenericObjectPoolConfig();
+        GenericObjectPoolConfig<Channel> config = new GenericObjectPoolConfig<>();
         config.setMaxWaitMillis(frpcClientOption.getConnectTimeOutMillis());
         config.setMaxTotal(frpcClientOption.getMaxTotalConnections());
         config.setMaxIdle(frpcClientOption.getMaxTotalConnections());
@@ -32,12 +42,20 @@ public class FrpcPooledChannel implements FrpcConnectionPool {
         config.setTestWhileIdle(true);
         config.setTimeBetweenEvictionRunsMillis(frpcClientOption.getTimeBetweenEvictionRunsMillis());
 
-        ServerRegisterDiscovery serverRegisterDiscovery = new ZookeeperService(address);
-        String serverAddressAndPort = serverRegisterDiscovery.discovery();
-        RegisterInfo registerInfo = NetUtils.getRegisterInfo(serverAddressAndPort);
+        if (zkAddress != null) {
+            ServerRegisterDiscovery serverRegisterDiscovery = new ZookeeperService(zkAddress);
+            String serverAddressAndPort = serverRegisterDiscovery.discovery();
+            RegisterInfo registerInfo = NetUtils.getRegisterInfo(serverAddressAndPort);
 
-        channelGenericObjectPool = new GenericObjectPool<Channel>(
-                new ChannelPoolFactory(client, registerInfo.getHost(),registerInfo.getPort()), config);
+            channelGenericObjectPool = new GenericObjectPool<>(
+                    new ChannelPoolFactory(client, registerInfo.getHost(), registerInfo.getPort()), config);
+        } else {
+
+            channelGenericObjectPool = new GenericObjectPool<>(
+                    new ChannelPoolFactory(client, serverAddress), config
+            );
+        }
+
         try {
             channelGenericObjectPool.preparePool();
         } catch (Exception e) {
