@@ -46,6 +46,7 @@ public class FrpcClient {
 
     public FrpcClient(InetSocketAddress serverAddress,FrpcClientOption option,String zkAddress) {
 
+        // 判断直接使用服务端地址，还是从zookeeper中取
         if (serverAddress != null) {
             log.info("serverAddress is :" + serverAddress);
             frpcPooledChannel = new FrpcPooledChannel(serverAddress, this);
@@ -53,6 +54,7 @@ public class FrpcClient {
             frpcPooledChannel = new FrpcPooledChannel(zkAddress, this);
         }
 
+        // 判断用户是否设置自定义客户端相关配置
         if (option != null) {
             BeanCopier copier = BeanCopier.create(FrpcClientOption.class, FrpcClientOption.class, false);
             copier.copy(option, frpcClientOption, null);
@@ -60,6 +62,7 @@ public class FrpcClient {
 
         EventLoopGroup work;
         bootstrap = new Bootstrap();
+        // 选择IO模型
         if (Epoll.isAvailable()) {
             work = new EpollEventLoopGroup(frpcClientOption.getNettyWorkThreadNum());
             bootstrap.channel(EpollSocketChannel.class);
@@ -70,12 +73,14 @@ public class FrpcClient {
             log.info("use normal mode");
         }
         bootstrap.group(work);
+        // 配置TPC相关参数
         bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, frpcClientOption.getConnectTimeOutMillis());
         bootstrap.option(ChannelOption.SO_KEEPALIVE, frpcClientOption.isKeepAlive());
         bootstrap.option(ChannelOption.TCP_NODELAY, frpcClientOption.isNoDelay());
         bootstrap.handler(new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(SocketChannel ch) throws Exception {
+                // 绑定客户端处理器
                 ch.pipeline().addLast(new FrpcClientHandler());
             }
         });

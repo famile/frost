@@ -13,7 +13,9 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public class FrpcRequest {
-
+    /**
+     * 请求id
+     */
     private String id;
     private String className;
     private String methodName;

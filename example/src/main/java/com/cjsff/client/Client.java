@@ -3,6 +3,9 @@ package com.cjsff.client;
 import com.cjsff.service.SayHelloService;
 import com.cjsff.service.impl.SayHelloServiceImpl;
 
+/**
+ * @author cjsff
+ */
 public class Client {
 
     public static void main(String[] args) {

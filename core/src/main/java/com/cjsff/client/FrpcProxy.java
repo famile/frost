@@ -24,6 +24,7 @@ public class FrpcProxy implements MethodInterceptor {
     private FrpcPooledChannel frpcPooledChannel;
 
     public FrpcProxy(FrpcClient frpcClient) {
+        // 用客户端拿到连接池对象
         this.frpcPooledChannel = frpcClient.getFrpcPooledChannel();
     }
 
@@ -37,6 +38,7 @@ public class FrpcProxy implements MethodInterceptor {
     @Override
     public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
 
+        // 请求消息组装
         String requestId = UUID.randomUUID().toString();
         FrpcRequest request = new FrpcRequest(requestId, method.getDeclaringClass().getName(),
                 method.getName(), method.getParameterTypes(), args);
@@ -47,6 +49,7 @@ public class FrpcProxy implements MethodInterceptor {
         Arrays.stream(request.getParamTypes()).forEach(paramType -> log.debug("param type is : {}",paramType));
 
         FrpcClientHandler handler = new FrpcClientHandler();
+        // 客户端请求服务端
         FrpcFuture frpcFuture = handler.send(request,frpcPooledChannel);
 
         return frpcFuture.get();
